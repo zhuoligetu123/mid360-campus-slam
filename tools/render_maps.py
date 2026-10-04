@@ -48,25 +48,28 @@ def main():
     points = read_pcd(args.map_dir / "cloudGlobal.pcd")
     # Fixed sampling only affects the preview; the source cloud is not modified.
     preview = points[::max(1, (len(points) + 159999) // 160000)]
-    limits = np.array([points.min(axis=0), points.max(axis=0)])
+    limits = np.quantile(points, [0.001, 0.999], axis=0)
+    preview = preview[((preview >= limits[0]) & (preview <= limits[1])).all(axis=1)]
     fig = plt.figure(figsize=(12, 8), facecolor="#111827")
     ax = fig.add_subplot(111, projection="3d", facecolor="#111827")
     scatter = ax.scatter(*preview.T, c=preview[:, 2], cmap="turbo",
                          s=0.35, alpha=0.8, linewidths=0, rasterized=True)
     ax.set_box_aspect(np.maximum(limits[1] - limits[0], 1))
-    ax.view_init(elev=48, azim=-65)
+    ax.view_init(elev=58, azim=-65)
     for axis, label in zip([ax.xaxis, ax.yaxis, ax.zaxis], ["X (m)", "Y (m)", "Z (m)"]):
         axis.set_pane_color((0.07, 0.1, 0.16, 1))
         axis.label.set_color("white")
         axis.set_label_text(label)
     ax.tick_params(colors="white", labelsize=8)
-    ax.set_title(f"cloudGlobal.pcd | {len(points):,} points", color="white", pad=12)
-    bar = fig.colorbar(scatter, ax=ax, shrink=0.55, pad=0.03)
+    ax.set_title(f"cloudGlobal.pcd | {len(points):,} source points", color="white", pad=12)
+    fig.text(0.5, 0.04, "Preview: 0.1-99.9 percentile bounds per axis; uniform sampling",
+             color="#b6c2d2", ha="center", fontsize=9)
+    bar = fig.colorbar(scatter, ax=ax, shrink=0.55, pad=0.12)
     bar.set_label("Height Z (m)", color="white")
     bar.ax.tick_params(colors="white")
     fig.savefig(args.output / "map-3d.png", dpi=160, facecolor=fig.get_facecolor(), bbox_inches="tight")
     plt.close(fig)
-    print("3D bounds (m):", limits.tolist())
+    print("3D preview bounds (m):", limits.tolist())
 
 
 if __name__ == "__main__":
