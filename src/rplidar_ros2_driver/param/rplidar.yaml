@@ -1,0 +1,173 @@
+# RPLIDAR ROS2 DRIVER
+# Part of the rplidar_ros2_driver package. See LICENSE file for details.
+
+rplidar_node:
+  ros__parameters:
+    serial_port: "/dev/ttyUSB0"
+
+    # ---------------------------------------------------------
+    # Baudrate Settings (model-dependent)
+    #   A1 / A2M8               : 115200
+    #   A2M7 / A2M12 / A3 / S1  : 256000
+    #   C1                      : 460800
+    #   S2 / S3                 : 1000000
+    # ---------------------------------------------------------
+    serial_baudrate: 115200
+
+    frame_id: "laser_frame"
+
+    # [1] Hardware / SDK Level: Geometric / angle compensation in the SDK
+    #
+    # A-series : true  (recommended / required)
+    # S-series : false (recommended for lower SDK load and to preserve raw data)
+    #
+    # NOTE: This flag is interpreted by the driver implementation.
+    angle_compensate: true
+
+    # ---------------------------------------------------------
+    # [Smart Auto-Detection Settings]
+    # Leave these EMPTY or 0 to let the driver select reasonable defaults.
+    # ---------------------------------------------------------
+
+    # scan_mode:
+    #   Specific scan mode name (e.g. "DenseBoost", "Standard", "Express").
+    #   Set to an empty string ("") to auto-detect a suitable mode
+    #   (e.g. S3 -> "DenseBoost").
+    #
+    #   The default value is "Standard" to avoid hardware adding imaginary
+    #   extra measurements. If you want to use "DenseBoost" mode, enable
+    #   'interpolated_rays' parameter and tune the 'computed_ray_count' instead.
+    scan_mode: "Standard"
+
+    # rpm:
+    #   Motor speed in RPMs.
+    #   Set to 0 to use the model's default (e.g. ~600 RPM).
+    #   For achieving 15 Hz measurement speed, set it to 900.
+    #   For S3, the max value is 1200 (20 Hz). Check your lidar model's max
+    #   supported freq from its datasheet.
+    rpm: 0
+
+    # ---------------------------------------------------------
+    # [Measurement Quality & Performance]
+    # ---------------------------------------------------------
+
+    # interpolated_rays (by cosmicog):
+    #   false: The default behaviour is re-binning irregular lidar points into a
+    #          uniform LaserScan angular grid, keeping the closest return per
+    #          beam. However, this still, doesn't produce accurate measurements.
+    #
+    #          If using the lidar only for obstacle detection, using this param
+    #          is not recommended.
+    #
+    #   true : Use fixed imaginary rays according to the computed_ray_count
+    #          parameter. Every 2 consecutive measurement is converted to a line
+    #          segment, and the intersection point of the fixed rays and these
+    #          line segments are treated as correct measurements.
+    #
+    #          If using the lidar for mapping and localisation, enabling this
+    #          parameter is recommended. Sharp corners are hard to detect with
+    #          all lidars because of the light beam scattering. This param also
+    #          causes beginning of the static object surface readings disappear,
+    #          which would help about using corners for mapping & localisation.
+    #
+    #          Do not forget to disable point cloud publishing to optimise
+    #          throughput when not debugging, or if not using the cloud msg.
+    interpolated_rays: false
+
+    # computed_ray_count:
+    #   Fixed beam count for the LaserScan message. RoboPeak lidars provide
+    #   different number of points on every rotation of the scanner. The beam
+    #   count is also dependent on the 'rpm' and 'scan_mode' parameters.
+
+    #   To tune this parameter, set your RPM and scan mode, enable
+    #   'publish_point_cloud' parameter and check the average point count in the
+    #   messages in the cloud topic. Using "DenseBoost" mode is not recommended
+    #   with it to avoid driver adding the extra points.
+    computed_ray_count: 1450
+
+    # use_intensities:
+    #   Most of the new models report weird values with the new sdk, and
+    #   disabling this as LaserScan msg documentation suggests, reduces network
+    #   transport cost of the published message.
+    use_intensities: false
+
+    # =========================================================
+    # [3] Driver Features (extensions added by frozenreboot)
+    # =========================================================
+
+    # max_distance:
+    #   Maximum range clip in meters.
+    #   Set to 0.0 to use the hardware limit detected via the SDK
+    #   (e.g. S3 -> 40.0 m).
+    max_distance: 0.0
+
+    # dummy_mode:
+    #   true  : Run in simulation mode (no hardware required).
+    #   false : Use real hardware via the Slamtec SDK.
+    dummy_mode: false
+
+    # publish_tf:
+    #   true  : The node publishes a static TF (e.g. base_link -> laser_frame).
+    #           Handy for quick tests or minimal setups.
+    #   false : Assume TF is provided by URDF / robot_state_publisher or
+    #           other dedicated TF sources. Recommended for production robots.
+    publish_tf: true
+
+    # qos_policy:
+    #   "sensor_data"      : Prioritize throughput, similar to UDP semantics.
+    #                        History: Keep last,
+    #                        Depth: 5,
+    #                        Reliability: Best effort,
+    #                        Durability: Volatile,
+    #                        rest of the specs are default.
+    #   "services_default" : Prioritize delivery guarantees, similar to TCP. May
+    #                        be useful on unstable networks, at the cost of
+    #                        latency.
+    #                        History: Keep last,
+    #                        Depth: 10,
+    #                        Reliability: Reliable,
+    #                        Durability: Volatile,
+    #   "system_default"   : This value or any other value selects the default
+    #                        system RMW QoS settings.
+    qos_policy: "sensor_data"
+
+    # max_retries:
+    #   Number of allowed communication errors before resetting the driver.
+    #   Recommended: 3 (~4-6s delay) for quicker disconnect detection.
+    #   If this value is too small, temporary noise may be treated as a disconnect.
+    #   The SDK checks device status every ~2 seconds,
+    #   so the actual detection time = approx max_retries * 2s.
+    max_retries: 3
+
+    # =========================================================
+    # [4] Orientation Correction (Added for A1/Reversed Issue)
+    # =========================================================
+
+    # angle_offset:
+    #   Add a fixed angle (in degrees) to all scan data.
+    #   Use this to correct hardware zero-angle misalignment.
+    #   - Standard devices (S-Series): 0.0
+    #   - Legacy A1,A2 (cable-side zero): 180.0
+    angle_offset: 0.0
+
+    # =========================================================
+    # [5] Debugging
+    # =========================================================
+
+    # publish_point_cloud:
+    #   Whether to publish scan as a PointCloud2 message. This is for debugging.
+    publish_point_cloud: false
+
+    # intensities_as_angles:
+    #   Previously if the scan_processing is false, this driver was publishing
+    #   a debug type of message with closer angle values to the reported values
+    #   by the hardware. However, that does not fit the LaserScan definition.
+    #   Now the scan_processing is removed and is the default behaviour This
+    #   parameter allows users to directly read the angle values reported by the
+    #   hardware.
+    #
+    #   If true, LaserScan messages will have angles for corresponding distances
+    #   in the intensities array, reported by the lidar hardware.
+    #
+    #   Doesn't work when interpolated_rays is enabled since it is not necessary
+    intensities_as_angles: false

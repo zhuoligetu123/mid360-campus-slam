@@ -1,0 +1,19 @@
+# Build artifacts
+build/
+install/
+log/
+
+# IDE / Editor
+.vscode/
+.idea/
+.cache/
+
+# Compilation database
+compile_commands.json
+
+# OS files
+.DS_Store
+
+# Python cache
+__pycache__/
+*.pyc

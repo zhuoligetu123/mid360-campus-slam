@@ -1,0 +1,26 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^src/sdk/
+      - id: end-of-file-fixer
+        exclude: ^src/sdk/
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v21.1.8
+    hooks:
+      - id: clang-format
+        types_or: [c++, c]
+        exclude: ^src/sdk/
+
+  - repo: local
+    hooks:
+      - id: forbid-non-ascii
+        name: Forbid non-ASCII characters (English Only)
+        entry: "[\x80-\uffff]"
+        language: pygrep
+        types: [text]
+        exclude: ^src/sdk/|^README\.md$

@@ -1,0 +1,113 @@
+/**:
+  ros__parameters:
+
+    history_policy: "history_keep_last"
+    reliability_policy: "reliability_reliable"
+
+    # Topics
+    pointCustomTopic: "livox/lidar"                   # Point cloud data
+    imuTopic: "/imu/data"                             # IMU data (from imu_complementary_filter)
+    odomTopic: "odometry/imu"                         # IMU pre-preintegration odometry
+    gpsTopic: "odometry/gpsz"                         # GPS odometry topic
+
+    # Frames
+    lidarFrame: "livox_frame"
+    baselinkFrame: "base_link"
+    odometryFrame: "odom"
+    mapFrame: "map"
+
+    # GPS Settings
+    useImuHeadingInitialization: false
+    useGpsElevation: false
+    gpsCovThreshold: 2.0
+    poseCovThreshold: 25.0
+
+    # Export settings
+    savePCD: false
+    # VINA-SLAM 地图目录: 仅包含 cloudGlobal.pcd, 无 SCDs/Scans/optimized_poses.txt
+    # 需要配合修改后的 localization.cpp (SC降级模式) 使用
+    # 启动后通过 rviz "2D Pose Estimate" 提供初始位姿
+    savePCDDirectory: "/home/robot/workspace/maps/vina_slam_reloc/"
+
+    # Sensor Settings
+    sensor: livox
+    N_SCAN: 4
+    Horizon_SCAN: 6000
+    downsampleRate: 1
+    lidarMinRange: 1.0
+    lidarMaxRange: 100.0
+
+    # IMU Settings
+    imuType: 0 
+    imuRate: 200.0
+    imuAccNoise: 3.9939570888238808e-03
+    imuGyrNoise: 1.5636343949698187e-03
+    imuAccBiasN: 6.4356659353532566e-05
+    imuGyrBiasN: 3.5640318696367613e-05
+
+    imuGravity: 9.80511
+    imuRPYWeight: 0.01
+
+    extrinsicTrans:  [ 0.0,  0.0,  0.0 ]
+    extrinsicRot:    [1.0,  0.0,  0.0,
+                       0.0,  1.0,  0.0,
+                       0.0,  0.0, 1.0 ]
+    extrinsicRPY: [1.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0,
+                  0.0, 0.0, 1.0]
+
+     # LOAM feature threshold
+    edgeThreshold: 1.0
+    surfThreshold: 0.1
+    edgeFeatureMinValidNum: 20
+    surfFeatureMinValidNum: 150
+
+    # voxel filter paprams
+    odometrySurfLeafSize: 0.4
+    mappingCornerLeafSize: 0.2
+    mappingSurfLeafSize: 0.4
+
+    # robot motion constraint (in case you are using a 2D robot)
+    z_tollerance: 1000.0
+    rotation_tollerance: 1000.0
+
+    # CPU Params
+    numberOfCores: 4
+    mappingProcessInterval: 0.0
+
+    # Surrounding map
+    surroundingkeyframeAddingDistThreshold: 1.0
+    surroundingkeyframeAddingAngleThreshold: 0.2
+    surroundingKeyframeDensity: 0.8
+    surroundingKeyframeSearchRadius: 100.0
+
+    # Loop closure
+    loopClosureEnableFlag: true
+    loopClosureFrequency: 1.0
+    surroundingKeyframeSize: 50
+    historyKeyframeSearchRadius: 20.0
+    historyKeyframeSearchTimeDiff: 30.0
+    historyKeyframeSearchNum: 15
+    historyKeyframeFitnessScore: 0.25
+
+    # Visualization
+    globalMapVisualizationSearchRadius: 1000.0
+    globalMapVisualizationPoseDensity: 10.0
+    globalMapVisualizationLeafSize: 1.0
+
+    ndtTransformationEpsilon: 0.0001
+    ndtResolution: 0.7
+    ndtStepSize: 0.1
+
+    icpMaxCorrespondenceDistance: 35.0
+    setMaximumIterations: 100
+    icpTransformationEpsilon: 1e-7
+    icpEuclideanFitnessEpsilon: 1e-7
+
+    small_num_neighbors: 25
+    small_gicp_reduction_num_threads: 6
+    small_gicp_rejector_max_dist_sq: 3.5
+    small_gicp_criteria_rotation_eps: 1e-6
+    small_gicp_criteria_translation_eps: 1e-6
+    small_gicp_optimizer_max_iterations: 80
+    small_gicp_result_max_error: 450.0
