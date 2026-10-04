@@ -32,6 +32,16 @@
 
 二维地图：223 × 274 像素，分辨率 0.05 m；三维原始点云：801,159 点。三维预览抽样显示各坐标轴 0.1%～99.9% 分位范围内的主体，不修改原始点云。
 
+### 补充地图：`maps.zip`
+
+来自压缩包内同一目录的 `maps/slam_data/cloudGlobal.pcd` 和 `maps/slam_data/map_2d.pgm`：
+
+| 二维切片地图 | 三维点云地图（按高度着色） |
+| --- | --- |
+| ![maps.zip 二维切片地图](docs/media/maps-zip/map-2d.png) | ![maps.zip 三维点云地图](docs/media/maps-zip/map-3d.png) |
+
+原始点云 **10,204,083 点**；二维地图 **1155 × 776 像素**、0.05 m/像素，栅格范围约 **57.75 × 38.80 m**。三维预览使用与上方相同的抽样及显示范围设置；仓库仅收录预览图，完整 `maps.zip` 不随代码上传。
+
 ## 编译
 
 环境：**Ubuntu 22.04、ROS 2 Humble、GTSAM 4.2、Livox-SDK2**。以下命令在已安装 ROS 2 Humble 的终端执行。
